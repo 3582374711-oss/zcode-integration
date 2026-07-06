@@ -1,60 +1,40 @@
 # ZCode Integration — OpenClaw Skill
 
-Connect OpenClaw to [ZCode](https://dev.zcode.app) for bidirectional task execution, prompts, and MCP tool integration.
+Bridge OpenClaw to [ZCode](https://dev.zcode.app) (macOS local AI coding agent).  
+OpenClaw delegates tasks to ZCode via CLI — ZCode generates code/scripts, returns results.
 
-## Features
+## What it does
 
-- Execute ZCode prompts from OpenClaw CLI
-- List ZCode skills, plugins, and commands
-- MCP server integration (app-server subcommand)
-- Check ZCode process health
-- Diagnose ZCode runtime via doctor command
+- OpenClaw calls `zcode.cjs --prompt "..."` with your request
+- ZCode's AI (configured with bighub.cn/deepseek-v4-flash) generates the answer
+- Output comes back to OpenClaw as text/code
 
-## Prerequisites
+## Quick start
 
-- [ZCode](https://dev.zcode.app) v3.x installed and running
-- Node.js (ZCode CLI is a Node.js bundle)
+1. Install [ZCode](https://dev.zcode.app) on macOS
+2. Install this skill for OpenClaw (see [Installation](#installation))
+3. Tell OpenClaw: "用 zcode 写个 XXX"
 
 ## Installation
 
-### Via OpenClaw ClawHub (recommended)
-
-```bash
-# Coming soon
-```
-
 ### Manual
 
-1. Copy `SKILL.md` to `~/.openclaw/workspace/skills/zcode-integration/`
-2. Restart OpenClaw Gateway or reload skills
-
-## Usage
-
 ```bash
-# Check version
-node /path/to/zcode.cjs --version
-
-# List skills
-node /path/to/zcode.cjs skills list
-
-# List plugins
-node /path/to/zcode.cjs plugins list
-
-# Run a prompt
-node /path/to/zcode.cjs --prompt "your instruction" --mode yolo
+git clone https://github.com/3582374711-oss/zcode-integration.git
+mkdir -p ~/.openclaw/workspace/skills/zcode-integration
+cp zcode-integration/SKILL.md ~/.openclaw/workspace/skills/zcode-integration/
 ```
 
-On macOS, create a quick alias:
+Restart OpenClaw Gateway and the skill is active.
 
-```bash
-ln -s /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs /usr/local/bin/zcode-oc
-zcode-oc --version
-```
+## Platform
 
-## Platform Notes
+- **macOS only** — ZCode.app is macOS-native
+- CLI path: `/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs`
 
-- **macOS**: ZCode typically installed at `/Applications/ZCode.app`
-- **Linux/Windows**: Adjust the CLI entry path in SKILL.md
+## Learn more
+
+Read [SKILL.md](./SKILL.md) for full command reference and safety notes.
 
 ## License
 
