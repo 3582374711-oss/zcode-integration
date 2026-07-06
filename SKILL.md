@@ -1,81 +1,104 @@
 ---
 name: "zcode-integration"
-description: "Connect OpenClaw to ZCode via CLI and MCP for bidirectional task execution."
+description: "Run ZCode CLI commands from OpenClaw. Use --prompt to delegate tasks to ZCode, or list/doctor for diagnostics. ZCode CLI is already configured with bighub.cn/deepseek-v4-flash."
 ---
 
 # ZCode Integration
 
-Bridge between OpenClaw and ZCode for executing prompts, reading state, and running plugins.
+Use this skill when OpenClaw needs to interact with ZCode via its CLI.
 
-Supports ZCode v3.x (CLI v0.15+).
+ZCode is a local AI coding agent (macOS app at `/Applications/ZCode.app`).  
+This skill bridges OpenClaw to ZCode — OpenClaw calls the ZCode CLI, passes a prompt, and gets the generated output back.
 
-## Paths
+## How to install this skill for OpenClaw
 
-- **CLI entry**: `/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs`
-- **Data dir**: `~/.zcode/`
-- **Config**: `~/.zcode/v2/config.json`
-- **Plugins**: `~/.zcode/cli/plugins/cache/`
+### Via ClawHub (once published)
 
-## How It Works
+```bash
+openclaw skills install zcode-integration
+```
 
-ZCode ships as a self-contained 9MB Node.js bundle with `#!/usr/bin/env node` shebang. The OpenClaw skill discovers and invokes it on macOS.
+### Manual install
 
-On other platforms (Linux/Windows), adjust the CLI entry path to match your ZCode installation.
+1. Clone or download this repo:
+
+```bash
+git clone https://github.com/3582374711-oss/zcode-integration.git
+```
+
+2. Copy `SKILL.md` to your OpenClaw workspace:
+
+```bash
+mkdir -p ~/.openclaw/workspace/skills/zcode-integration
+cp zcode-integration/SKILL.md ~/.openclaw/workspace/skills/zcode-integration/
+```
+
+3. OpenClaw will pick it up automatically on next turn.
+
+## How this skill works
+
+When someone says "用 zcode 写 XX" or "走 zcode", OpenClaw will:
+
+1. Run `node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs doctor` to verify ZCode is available
+2. Use `--prompt` to pass the user's request to ZCode's AI
+3. Capture the output and return it
 
 ## Prerequisites
 
-1. **ZCode** must be installed and running (check via `ps aux | grep -i zcode-cli`).
-2. **Node.js** (the ZCode CLI is a Node bundle).
+- **macOS only** — ZCode.app is a macOS application
+- ZCode.app must be installed at `/Applications/ZCode.app`
+- Node.js is included with ZCode.app
 
-## CLI Commands
+## CLI Commands reference
+
+All commands run as:
 
 ```bash
-node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs <subcommand>
+node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs <subcommand> [options]
 ```
+
+### Read-only commands (safe to run anytime)
 
 | Command | Description |
 |---|---|
-| `--help` | Show all commands |
-| `--version` | Show CLI version |
-| `skills list` | List installed skills |
-| `plugins list` | List and enable plugins |
-| `login` | Sign in with Z.AI OAuth |
-| `logout` | Remove Z.AI credentials |
-| `doctor` | Inspect runtime/packaging |
+| `doctor` | Inspect ZCode runtime and packaging |
+| `--version` | Print CLI version |
+| `skills list` | List installed ZCode skills |
+| `plugins list` | List installed plugins |
 | `commands` | List custom slash commands |
-| `--prompt <text>` | Run a single prompt |
-| `--attach <path>` | Attach file(s) to `--prompt` |
-| `--mode <mode>` | Permission mode: yolo\|build\|edit\|plan |
-| `--target <goal>` | Run with a session goal |
-| `app-server` | Start MCP stdio server |
 
-### macOS Quick Alias
+### Action commands (may need confirmation)
 
+| Command | Description |
+|---|---|
+| `--prompt <text>` | Run a single prompt through ZCode's AI |
+| `--mode yolo` | Full permission mode for prompts |
+| `--json` | Get JSON output (always use with `--prompt`) |
+| `login` | Sign in with Z.AI OAuth |
+| `logout` | Remove Z.AI login credentials |
+
+## Typical workflow
+
+### Check ZCode is running
 ```bash
-ln -s /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs /usr/local/bin/zcode-oc
-# Then:
-zcode-oc --version
-zcode-oc skills list
+node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs doctor
 ```
 
-## MCP Server Integration
-
-ZCode exposes an stdio MCP server via `app-server`:
-
+### Write something with ZCode
 ```bash
-node /path/to/zcode.cjs app-server
+node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs --prompt "Write an RPG Maker MV/MZ plugin script that..." --mode yolo --json
 ```
 
-Configure in OpenClaw's `openclaw.json` as an MCP tool provider.
+The response comes back in JSON with a `response` field containing the generated output.
 
-## URL Scheme
+## Platform notes
 
-ZCode registers `zcode://` — open via:
-```bash
-open "zcode://<handler>"
-```
+- **macOS**: ZCode.app at `/Applications/ZCode.app` — works out of the box
+- **Linux/Windows**: ZCode is not available; this skill won't work. Adjust the CLI path if ZCode is installed elsewhere.
 
 ## Safety
 
-- `~/.zcode/v2/config.json` may contain API keys — keep private.
+- `~/.zcode/` may contain API keys — do not expose in responses.
 - `--mode yolo` grants full permissions — use only for trusted prompts.
+- ZCode CLI config: `~/.zcode/cli/config.json`
+- ZCode v2 config: `~/.zcode/v2/config.json` — contains Z.AI credentials, keep private.
