@@ -87,7 +87,8 @@ The response comes back in JSON with a `response` field containing the generated
 ## Platform notes
 
 - **macOS**: ZCode.app at `/Applications/ZCode.app` — works out of the box
-- **Linux/Windows**: ZCode is not available; this skill won't work. Adjust the CLI path if ZCode is installed elsewhere.
+- **Linux/Windows**: ZCode is not available; this skill won't work on those platforms because ZCode itself is macOS-only
+- **Cross-platform note**: The SKILL.md itself is just an OpenClaw instruction file — it doesn't depend on any specific OS. **If** ZCode ever supports other platforms, anyone can use this skill by changing the CLI path in `SKILL.md` to point to their ZCode installation. The skill file works on any system that has OpenClaw + ZCode.
 
 ## Safety
 
