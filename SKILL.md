@@ -12,28 +12,21 @@ This skill bridges OpenClaw to ZCode — OpenClaw calls the ZCode CLI, passes a 
 
 ## How to install this skill for OpenClaw
 
+### Manual install
+
+```bash
+git clone https://github.com/3582374711-oss/zcode-integration.git
+mkdir -p ~/.openclaw/workspace/skills/zcode-integration
+cp zcode-integration/SKILL.md ~/.openclaw/workspace/skills/zcode-integration/
+```
+
+OpenClaw picks it up automatically — no config needed.
+
 ### Via ClawHub (once published)
 
 ```bash
 openclaw skills install zcode-integration
 ```
-
-### Manual install
-
-1. Clone or download this repo:
-
-```bash
-git clone https://github.com/3582374711-oss/zcode-integration.git
-```
-
-2. Copy `SKILL.md` to your OpenClaw workspace:
-
-```bash
-mkdir -p ~/.openclaw/workspace/skills/zcode-integration
-cp zcode-integration/SKILL.md ~/.openclaw/workspace/skills/zcode-integration/
-```
-
-3. OpenClaw will pick it up automatically on next turn.
 
 ## How this skill works
 
@@ -41,7 +34,7 @@ When someone says "用 zcode 写 XX" or "走 zcode", OpenClaw will:
 
 1. Run `node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs doctor` to verify ZCode is available
 2. Use `--prompt` to pass the user's request to ZCode's AI
-3. Capture the output and return it
+3. Capture the output and return it to the user
 
 ## Prerequisites
 
